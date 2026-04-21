@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Smart Doctor Finder | AI-Powered Recommendations</title>
+    <meta name="description"
+        content="Find the right doctor instantly with AI-powered smart recommendations based on location, specialization, experience, and ratings." />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet" />
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- EmailJS -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <i class="fa-solid fa-stethoscope"></i>
+            <span>Smart<span class="brand-accent">Doc</span></span>
+        </div>
+        <div class="nav-controls" style="display:flex;align-items:center;gap:0.75rem">
+            <div id="navUserPill" style="display:none">
+                <!-- User initials pill will go here -->
+            </div>
+            <select class="lang-select" id="langSelect" title="Language">
+                <option value="en">🌐 EN</option>
+                <option value="hi">🌐 HI</option>
+                <option value="te">🌐 TE</option>
+            </select>
+            <button class="theme-toggle" id="themeToggle" title="Toggle theme">
+                <i class="fa-solid fa-moon" id="themeIcon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ===== HERO SECTION ===== -->
+    <section class="hero" id="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-badge"><i class="fa-solid fa-shield-heart"></i> AI-Powered Healthcare</div>
+            <h1 class="hero-title">Find the Right Doctor<br />with <span class="gradient-text">Smart AI</span> 🩺</h1>
+            <p class="hero-subtitle">Trusted recommendations. Faster appointments. Better care.</p>
+            <div class="hero-stats">
+                <div class="stat"><span class="stat-num">10K+</span><span class="stat-label">Doctors</span></div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">50K+</span><span class="stat-label">Patients Helped</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat"><span class="stat-num">4.9★</span><span class="stat-label">Avg Rating</span></div>
+            </div>
+            <div style="display:flex;gap:1rem;flex-wrap:wrap">
+                <button class="btn-primary pulse-btn" id="findDoctorBtn">
+                    <i class="fa-solid fa-magnifying-glass-plus"></i> Find a Doctor
+                </button>
+            </div>
+        </div>
+        <div class="hero-visual">
+            <div class="floating-card card-1"><i class="fa-solid fa-heart-pulse"></i><span>Live Monitoring</span></div>
+            <div class="floating-card card-2"><i class="fa-solid fa-user-doctor"></i><span>Expert Doctors</span></div>
+            <div class="floating-card card-3"><i class="fa-solid fa-calendar-check"></i><span>Easy Booking</span></div>
+        </div>
+    </section>
+
+    <!-- ===== AUTH MODAL ===== -->
+    <div class="modal-overlay section-hidden" id="loginModal">
+        <div class="modal-box auth-modal">
+            <button class="modal-close" onclick="closeAuthModal()"><i class="fa-solid fa-xmark"></i></button>
+            <h2>🏥 Patient Login</h2>
+            <p>Login or Register to find and book doctors</p>
+            
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" onclick="switchMainAuthTab('login')">Login</button>
+                <button class="auth-tab" id="registerTab" onclick="switchMainAuthTab('register')">Register</button>
+            </div>
+
+            <div id="mainAuthAlert"></div>
+
+            <div id="mainLoginForm">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="mainLoginEmail" placeholder="you@email.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="mainLoginPassword" placeholder="••••••••" />
+                </div>
+                <button class="btn-primary full-width" onclick="doMainLogin()">Login</button>
+                <p class="auth-switch-link" style="text-align:center;margin-top:1rem;font-size:0.85rem">Not a patient? <a href="doctor-portal.html" style="color:var(--primary);font-weight:700">Doctor Portal →</a></p>
+            </div>
+
+            <div id="mainRegisterForm" style="display:none">
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="mainRegName" placeholder="Your name" />
+                </div>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="mainRegEmail" placeholder="you@email.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="mainRegPassword" placeholder="Min 6 characters" />
+                </div>
+                <button class="btn-primary full-width" onclick="doMainRegister()">Create Account</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOOKING SELECTION MODAL ===== -->
+    <div class="modal-overlay section-hidden" id="bookingPickerModal">
+        <div class="modal-box booking-picker-box">
+            <button class="modal-close" onclick="closeBookingPicker()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="picker-header" style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem">
+                <div id="pickerDocAvatar" class="doc-emoji-avatar" style="width:60px;height:60px;border-radius:50%;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:1.8rem">👨‍⚕️</div>
+                <div>
+                    <h3 id="pickerDocName" style="margin:0">Dr. Name</h3>
+                    <p id="pickerDocSpec" style="margin:0;color:var(--primary);font-weight:600">Specialization</p>
+                </div>
+            </div>
+            
+            <div class="picker-body">
+                <div class="form-group">
+                    <label><i class="fa-solid fa-calendar"></i> Select Date</label>
+                    <input type="date" id="bookingDatePicker" onchange="onBookingDateChange()" />
+                </div>
+                <div class="slots-section" style="margin-top:1.5rem">
+                    <label style="display:block;margin-bottom:0.5rem;font-weight:600">Available Slots</label>
+                    <div class="slots-grid" id="mainSlotsGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:0.5rem">
+                        <div class="no-slots-msg" style="grid-column:1/-1;text-align:center;padding:1rem;color:var(--text3)">Select a date to see slots</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="picker-footer" id="pickerFooter" style="display:none;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+                <div class="selected-summary" style="margin-bottom:1rem;font-weight:700;text-align:center">
+                    <span id="sumSelectedDate">Date</span> • <span id="sumSelectedTime">Time</span>
+                </div>
+                <button class="btn-primary full-width" onclick="confirmMainBooking()">
+                    <i class="fa-solid fa-calendar-check"></i> Book Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== BOOKING SUCCESS MODAL ===== -->
+    <div class="modal-overlay section-hidden" id="bookingSuccessModal">
+        <div class="modal-box success-modal" style="text-align:center">
+            <div class="success-icon" style="font-size:4rem;color:var(--secondary);margin-bottom:1rem"><i class="fa-solid fa-circle-check"></i></div>
+            <h2>Appointment Booked!</h2>
+            <p>Your appointment has been successfully scheduled.</p>
+            <div class="success-details" id="successDetails" style="background:var(--bg3);padding:1rem;border-radius:12px;margin:1.5rem 0;text-align:left">
+                <!-- Details injected by JS -->
+            </div>
+            <button class="btn-primary full-width" onclick="closeSuccessModal()">Great!</button>
+        </div>
+    </div>
+
+    <!-- ===== CHOICE SECTION ===== -->
+    <section class="choice-section section-hidden" id="choiceSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>Choose How You Want to Search</h2>
+                <p>Pick the experience that suits you best</p>
+            </div>
+            <div class="choice-cards">
+                <div class="choice-card" id="chatChoice">
+                    <div class="choice-icon"><i class="fa-solid fa-comments"></i></div>
+                    <h3>💬 Chat with AI Assistant</h3>
+                    <p>Have a friendly conversation. Our AI guides you step-by-step to find your perfect doctor.</p>
+                    <ul class="choice-features">
+                        <li><i class="fa-solid fa-check"></i> Conversational & intuitive</li>
+                        <li><i class="fa-solid fa-check"></i> Smart follow-up questions</li>
+                        <li><i class="fa-solid fa-check"></i> Personalized experience</li>
+                    </ul>
+                    <button class="btn-choice">Start Chat <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+                <div class="choice-card" id="formChoice">
+                    <div class="choice-icon form-icon"><i class="fa-solid fa-file-medical"></i></div>
+                    <h3>📝 Fill Quick Form</h3>
+                    <p>Prefer a structured approach? Fill out our quick step-by-step form and get instant results.</p>
+                    <ul class="choice-features">
+                        <li><i class="fa-solid fa-check"></i> Fast & efficient</li>
+                        <li><i class="fa-solid fa-check"></i> All fields at once</li>
+                        <li><i class="fa-solid fa-check"></i> Clear overview</li>
+                    </ul>
+                    <button class="btn-choice form-btn">Fill Form <i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CHAT SECTION ===== -->
+    <section class="chat-section section-hidden" id="chatSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>💬 AI Doctor Assistant</h2>
+                <p>Let's find the perfect doctor for you</p>
+            </div>
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <!-- Messages rendered by JS -->
+                </div>
+                <div class="chat-input-area">
+                    <div class="chat-quick-replies" id="quickReplies"></div>
+                    <div class="chat-input-row">
+                        <div class="chat-slider-wrap hidden" id="sliderWrap">
+                            <label>Minimum Rating: <span id="sliderValue">4.0</span>⭐</label>
+                            <input type="range" min="1" max="5" step="0.5" value="4" id="ratingSlider" />
+                        </div>
+                        <input type="text" class="chat-input" id="chatInput" placeholder="Type your answer…"
+                            autocomplete="off" />
+                        <button class="chat-send-btn" id="chatSendBtn"><i class="fa-solid fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FORM SECTION ===== -->
+    <section class="form-section section-hidden" id="formSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>📝 Find Your Doctor</h2>
+                <p>Fill in your preferences below</p>
+            </div>
+            <!-- Progress bar -->
+            <div class="form-progress">
+                <div class="progress-steps">
+                    <div class="progress-step active" data-step="1"><span>1</span><label>Basic Info</label></div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="2"><span>2</span><label>Preferences</label></div>
+                    <div class="progress-line"></div>
+                    <div class="progress-step" data-step="3"><span>3</span><label>Contact</label></div>
+                </div>
+            </div>
+            <form class="smart-form" id="doctorForm" novalidate>
+                <!-- Step 1 -->
+                <div class="form-step active" id="step1">
+                    <h3><i class="fa-solid fa-location-dot"></i> Basic Information</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-city"></i> City / Location</label>
+                            <input type="text" id="f_location" placeholder="e.g. Hyderabad, Mumbai" required />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-user-doctor"></i> Specialization Needed</label>
+                            <select id="f_specialization" required>
+                                <option value="">Select specialization</option>
+                                <option>Cardiologist</option>
+                                <option>Dermatologist</option>
+                                <option>Neurologist</option>
+                                <option>Orthopedist</option>
+                                <option>Pediatrician</option>
+                                <option>Gynecologist</option>
+                                <option>Psychiatrist</option>
+                                <option>General Physician</option>
+                                <option>ENT Specialist</option>
+                                <option>Oncologist</option>
+                                <option>Ophthalmologist</option>
+                                <option>Dentist</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fa-solid fa-video"></i> Appointment Type</label>
+                            <div class="radio-group">
+                                <label class="radio-card">
+                                    <input type="radio" name="apptType" value="Online" id="f_online" />
+                                    <span><i class="fa-solid fa-laptop-medical"></i> Online</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="apptType" value="Offline" id="f_offline" checked />
+                                    <span><i class="fa-solid fa-hospital"></i> Offline (In-person)</span>
+                                </label>
+                                <label class="radio-card">
+                                    <input type="radio" name="apptType" value="Both" id="f_both" />
+                                    <span><i class="fa-solid fa-arrows-rotate"></i> Both</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-nav"><button type="button" class="btn-next" onclick="nextStep(2)">Next <i
+                                class="fa-solid fa-arrow-right"></i></button></div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="form-step" id="step2">
+                    <h3><i class="fa-solid fa-sliders"></i> Doctor Preferences</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-briefcase-medical"></i> Minimum Experience (years)</label>
+                            <select id="f_experience">
+                                <option value="0">Any</option>
+                                <option value="2">2+ years</option>
+                                <option value="5">5+ years</option>
+                                <option value="10">10+ years</option>
+                                <option value="15">15+ years</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-graduation-cap"></i> Education / Qualification</label>
+                            <select id="f_education">
+                                <option value="Any">Any</option>
+                                <option value="MBBS">MBBS</option>
+                                <option value="MD">MD</option>
+                                <option value="MS">MS</option>
+                                <option value="DM">DM (Super Specialist)</option>
+                                <option value="PhD">PhD / Research</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fa-solid fa-star"></i> Minimum Rating: <span id="f_ratingVal">4.0</span>
+                                ⭐</label>
+                            <input type="range" min="1" max="5" step="0.5" value="4" id="f_rating"
+                                class="styled-slider" />
+                        </div>
+                        <div class="form-group full-width">
+                            <label><i class="fa-solid fa-indian-rupee-sign"></i> Consultation Fee Range</label>
+                            <div class="radio-group">
+                                <label class="radio-card"><input type="radio" name="budget" value="under500"
+                                        checked /><span>Under ₹500</span></label>
+                                <label class="radio-card"><input type="radio" name="budget"
+                                        value="500-1000" /><span>₹500–₹1000</span></label>
+                                <label class="radio-card"><input type="radio" name="budget"
+                                        value="1000-2000" /><span>₹1000–₹2000</span></label>
+                                <label class="radio-card"><input type="radio" name="budget"
+                                        value="above2000" /><span>₹2000+</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-nav">
+                        <button type="button" class="btn-back" onclick="prevStep(1)"><i
+                                class="fa-solid fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn-next" onclick="nextStep(3)">Next <i
+                                class="fa-solid fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="form-step" id="step3">
+                    <h3><i class="fa-solid fa-address-card"></i> Your Contact Info</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-user"></i> Full Name</label>
+                            <input type="text" id="f_name" placeholder="Your name" required />
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fa-solid fa-envelope"></i> Email Address</label>
+                            <input type="email" id="f_email" placeholder="you@email.com" required />
+                        </div>
+                    </div>
+                    <div class="form-nav">
+                        <button type="button" class="btn-back" onclick="prevStep(2)"><i
+                                class="fa-solid fa-arrow-left"></i> Back</button>
+                        <button type="button" class="btn-primary submit-btn" id="formSubmitBtn">
+                            <i class="fa-solid fa-magnifying-glass"></i> Find Doctors
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- ===== LOADING STATE ===== -->
+    <section class="loading-section section-hidden" id="loadingSection">
+        <div class="container">
+            <div class="loading-anim">
+                <div class="pulse-ring"></div>
+                <div class="pulse-ring delay1"></div>
+                <div class="pulse-ring delay2"></div>
+                <div class="loading-icon"><i class="fa-solid fa-stethoscope"></i></div>
+            </div>
+            <h2 class="loading-text">Finding the best doctors for you… 🏥</h2>
+            <p>Our AI is analyzing thousands of profiles to find your perfect match</p>
+            <div class="loading-steps">
+                <div class="load-step active" id="ls1"><i class="fa-solid fa-check-circle"></i> Collecting your
+                    preferences</div>
+                <div class="load-step" id="ls2"><i class="fa-regular fa-circle"></i> Sending data to LangChain AI</div>
+                <div class="load-step" id="ls3"><i class="fa-regular fa-circle"></i> AI ranking &amp; matching doctors
+                </div>
+                <div class="load-step" id="ls4"><i class="fa-regular fa-circle"></i> Preparing your recommendations
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== RESULTS SECTION ===== -->
+    <section class="results-section section-hidden" id="resultsSection">
+        <div class="container">
+            <div class="section-header">
+                <h2>🎯 Your Recommended Doctors</h2>
+                <p id="resultsSubtitle">Based on your preferences, here are the best matches</p>
+            </div>
+            <div class="results-toolbar">
+                <div class="result-count" id="resultCount"></div>
+                <button class="btn-secondary" id="searchAgainBtn"
+                    onclick="document.getElementById('webhookBanner')?.remove()"><i class="fa-solid fa-rotate-left"></i>
+                    Search Again</button>
+            </div>
+            <div class="doctors-grid" id="doctorsGrid">
+                <!-- Doctor cards rendered by JS -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== CONTACT SECTION ===== -->
+    <section class="contact-section" id="contactSection">
+        <div class="container">
+            <div class="contact-inner">
+                <div class="contact-info">
+                    <h2>📬 Need Help?</h2>
+                    <p>Have questions or need support? We're here to help you get the best care.</p>
+                    <div class="contact-items">
+                        <div class="contact-item"><i
+                                class="fa-solid fa-envelope"></i><span>support@smartdocfinder.ai</span></div>
+                        <div class="contact-item"><i class="fa-solid fa-phone"></i><span>+91 98765 43210</span></div>
+                        <div class="contact-item"><i class="fa-solid fa-clock"></i><span>24/7 Support</span></div>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm">
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-user"></i> Name</label>
+                        <input type="text" id="c_name" placeholder="Your name" required />
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-envelope"></i> Email</label>
+                        <input type="email" id="c_email" placeholder="you@email.com" required />
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-message"></i> Message</label>
+                        <textarea id="c_message" rows="4" placeholder="How can we help?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-paperclip"></i> Attachment (optional)</label>
+                        <input type="file" id="c_file" class="file-input" accept=".pdf,.jpg,.png,.doc" />
+                    </div>
+                    <button type="submit" class="btn-primary" id="contactSubmitBtn">
+                        <i class="fa-solid fa-paper-plane"></i> Send Message
+                    </button>
+                    <div class="form-feedback" id="contactFeedback"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-brand">
+                <i class="fa-solid fa-stethoscope"></i>
+                <span>Smart<span class="brand-accent">Doc</span> Finder</span>
+            </div>
+            <p>AI-powered healthcare recommendations. Your health, our priority. 🏥</p>
+            <div class="footer-links">
+                <a href="#hero">Home</a>
+                <a href="#contactSection">Contact</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms</a>
+            </div>
+            <p class="footer-copy">© 2026 SmartDoc Finder. Built with ❤️ for better healthcare.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/webhook.js"></script>
+    <script src="js/chat.js"></script>
+    <script src="js/form.js"></script>
+    <script src="js/email.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

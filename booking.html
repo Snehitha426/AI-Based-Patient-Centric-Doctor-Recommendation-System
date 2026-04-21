@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book Appointment | SmartDoc Finder</title>
+    <meta name="description" content="Browse doctors, check real-time availability and book your appointment instantly with SmartDoc." />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/booking.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════ -->
+<nav class="portal-nav" id="portalNav">
+    <a href="index.html" class="nav-brand">
+        <i class="fa-solid fa-stethoscope"></i>
+        <span>Smart<span class="brand-accent">Doc</span></span>
+    </a>
+    <div class="nav-right" id="navRight">
+        <!-- Populated by JS when logged in -->
+        <button class="btn-secondary" id="navBackToHome" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-house"></i> Home
+        </button>
+    </div>
+</nav>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════════════════════════════════════════
+     AUTH SECTION
+══════════════════════════════════════════════ -->
+<div class="portal-section active" id="authSection">
+    <div class="auth-page">
+        <div class="auth-card">
+            <h2>🏥 Patient Portal</h2>
+            <p class="auth-sub">Login or create an account to book appointments</p>
+
+            <!-- Auth tabs -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <!-- Alert area -->
+            <div id="authAlert"></div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="you@email.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" />
+                </div>
+                <button class="btn-primary" id="loginBtn" onclick="doLogin()">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+                <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">
+                    Are you a doctor? <a href="doctor-portal.html" style="color:var(--primary);font-weight:700">Doctor Portal →</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" style="display:none">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" placeholder="Your name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="regPhone" placeholder="+91 XXXXX XXXXX" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" placeholder="you@email.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Min 6 characters" />
+                </div>
+                <button class="btn-primary" id="registerBtn" onclick="doRegister()">
+                    <i class="fa-solid fa-user-plus"></i> Create Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MAIN APP (shown after login)
+══════════════════════════════════════════════ -->
+<div class="portal-section" id="appSection">
+    <div class="portal-wrapper">
+
+        <!-- Tab Navigation -->
+        <div class="portal-tabs">
+            <button class="portal-tab-btn active" id="tab-browse" onclick="showTab('browse')">
+                <i class="fa-solid fa-search"></i> Find Doctors
+            </button>
+            <button class="portal-tab-btn" id="tab-appointments" onclick="showTab('appointments')">
+                <i class="fa-solid fa-calendar-check"></i> My Appointments
+            </button>
+        </div>
+
+        <!-- ── BROWSE DOCTORS ── -->
+        <div id="browsePanel" class="tab-panel">
+            <div class="page-header">
+                <h1>Browse Doctors</h1>
+                <p>Find the right specialist and book your appointment in minutes</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="filter-bar">
+                <input type="text" id="searchInput" placeholder="🔍  Search by name or specialization…" oninput="renderDoctorList()" />
+                <select id="specFilter" onchange="renderDoctorList()">
+                    <option value="">All Specializations</option>
+                    <option>Cardiologist</option>
+                    <option>Neurologist</option>
+                    <option>Dermatologist</option>
+                    <option>Orthopedist</option>
+                    <option>Pediatrician</option>
+                    <option>Psychiatrist</option>
+                    <option>General Physician</option>
+                    <option>Gynecologist</option>
+                    <option>ENT Specialist</option>
+                    <option>Oncologist</option>
+                    <option>Ophthalmologist</option>
+                    <option>Dentist</option>
+                </select>
+                <select id="sortFilter" onchange="renderDoctorList()">
+                    <option value="rating">Sort: Top Rated</option>
+                    <option value="experience">Sort: Most Experienced</option>
+                    <option value="fee_asc">Sort: Fee Low–High</option>
+                    <option value="fee_desc">Sort: Fee High–Low</option>
+                </select>
+            </div>
+
+            <!-- Grid -->
+            <div class="doctors-listing-grid" id="doctorsListGrid">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+
+        <!-- ── DOCTOR PROFILE + BOOKING ── -->
+        <div id="profilePanel" class="tab-panel" style="display:none">
+            <button class="profile-back-btn" onclick="showBrowse()">
+                <i class="fa-solid fa-arrow-left"></i> Back to doctors
+            </button>
+
+            <div class="profile-layout" id="profileLayout">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- ── MY APPOINTMENTS ── -->
+        <div id="appointmentsPanel" class="tab-panel" style="display:none">
+            <div class="page-header">
+                <h1>My Appointments</h1>
+                <p>View and manage all your upcoming and past appointments</p>
+            </div>
+            <div id="apptListContainer">
+                <!-- Rendered by JS -->
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     BOOKING CONFIRMATION MODAL
+══════════════════════════════════════════════ -->
+<div class="modal-overlay" id="bookingModal" style="display:none">
+    <div class="modal-box">
+        <h3>✅ Confirm Your Booking</h3>
+        <p>Please review your appointment details before confirming.</p>
+        <div class="booking-summary" id="bookingSummary">
+            <!-- Populated by JS -->
+        </div>
+        <div class="modal-actions">
+            <button class="btn-secondary" onclick="closeModal()">
+                <i class="fa-solid fa-xmark"></i> Cancel
+            </button>
+            <button class="btn-primary" id="confirmBookBtn" onclick="confirmBooking()" style="width:auto;padding:0.7rem 1.5rem">
+                <i class="fa-solid fa-calendar-check"></i> Confirm Booking
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/storage.js"></script>
+<script src="js/booking.js"></script>
+</body>
+</html>

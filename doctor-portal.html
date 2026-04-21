@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctor Portal | SmartDoc Finder</title>
+    <meta name="description" content="Doctor dashboard — manage your schedule, view upcoming appointments and track patient history." />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/booking.css" />
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     NAVBAR
+══════════════════════════════════════════════ -->
+<nav class="portal-nav" id="portalNav">
+    <a href="index.html" class="nav-brand">
+        <i class="fa-solid fa-stethoscope"></i>
+        <span>Smart<span class="brand-accent">Doc</span> <span style="font-size:0.8em;opacity:0.7">Doctor</span></span>
+    </a>
+    <div class="nav-right" id="navRight">
+        <button class="btn-secondary" onclick="window.location.href='index.html'">
+            <i class="fa-solid fa-house"></i> Home
+        </button>
+    </div>
+</nav>
+
+<!-- Toast -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ══════════════════════════════════════════════
+     AUTH SECTION
+══════════════════════════════════════════════ -->
+<div class="portal-section active" id="authSection">
+    <div class="auth-page">
+        <div class="auth-card">
+            <h2>👨‍⚕️ Doctor Portal</h2>
+            <p class="auth-sub">Manage your schedule and appointments</p>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="loginTab" onclick="switchAuthTab('login')">Login</button>
+                <button class="auth-tab" id="registerTab" onclick="switchAuthTab('register')">Register</button>
+            </div>
+
+            <div id="authAlert"></div>
+
+            <!-- Login Form -->
+            <div id="loginForm">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="doctor@clinic.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="loginPassword" placeholder="••••••••" />
+                </div>
+                <button class="btn-primary" id="loginBtn" onclick="doLogin()">
+                    <i class="fa-solid fa-right-to-bracket"></i> Login
+                </button>
+                <p style="text-align:center;margin-top:1rem;font-size:0.85rem;color:var(--text-muted)">
+                    Are you a patient? <a href="booking.html" style="color:var(--primary);font-weight:700">Patient Portal →</a>
+                </p>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" style="display:none">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="regName" placeholder="Dr. Your Name" />
+                    </div>
+                    <div class="form-group">
+                        <label>Specialization</label>
+                        <select id="regSpec">
+                            <option value="General Physician">General Physician</option>
+                            <option value="Cardiologist">Cardiologist</option>
+                            <option value="Dermatologist">Dermatologist</option>
+                            <option value="Neurologist">Neurologist</option>
+                            <option value="Orthopedist">Orthopedist</option>
+                            <option value="Pediatrician">Pediatrician</option>
+                            <option value="Gynecologist">Gynecologist</option>
+                            <option value="Psychiatrist">Psychiatrist</option>
+                            <option value="ENT Specialist">ENT Specialist</option>
+                            <option value="Oncologist">Oncologist</option>
+                            <option value="Ophthalmologist">Ophthalmologist</option>
+                            <option value="Dentist">Dentist</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Years of Experience</label>
+                        <input type="number" id="regExp" placeholder="e.g. 10" min="0" max="50" />
+                    </div>
+                    <div class="form-group">
+                        <label>Consultation Fee (₹)</label>
+                        <input type="number" id="regFee" placeholder="e.g. 800" min="0" />
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="regEmail" placeholder="doctor@clinic.com" />
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="regPassword" placeholder="Min 6 characters" />
+                </div>
+                <button class="btn-primary" id="registerBtn" onclick="doRegister()">
+                    <i class="fa-solid fa-user-doctor"></i> Create Doctor Account
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     DOCTOR APP (after login)
+══════════════════════════════════════════════ -->
+<div class="portal-section" id="appSection">
+    <div class="portal-wrapper">
+
+        <!-- Tabs -->
+        <div class="portal-tabs">
+            <button class="portal-tab-btn active" id="tab-dashboard" onclick="showTab('dashboard')">
+                <i class="fa-solid fa-gauge"></i> Dashboard
+            </button>
+            <button class="portal-tab-btn" id="tab-schedule" onclick="showTab('schedule')">
+                <i class="fa-solid fa-clock"></i> My Schedule
+            </button>
+            <button class="portal-tab-btn" id="tab-appointments" onclick="showTab('appointments')">
+                <i class="fa-solid fa-calendar-check"></i> Appointments
+            </button>
+            <button class="portal-tab-btn" id="tab-profile" onclick="showTab('profile')">
+                <i class="fa-solid fa-user-doctor"></i> My Profile
+            </button>
+        </div>
+
+        <!-- ── DASHBOARD ── -->
+        <div id="dashboardPanel" class="tab-panel">
+            <div class="page-header">
+                <h1 id="dashboardGreeting">Welcome back, Doctor!</h1>
+                <p>Here's an overview of your practice today</p>
+            </div>
+
+            <div class="dashboard-stats" id="dashboardStats">
+                <!-- Populated by JS -->
+            </div>
+
+            <div id="todayAppts">
+                <!-- Today's appointments list -->
+            </div>
+        </div>
+
+        <!-- ── SCHEDULE MANAGER ── -->
+        <div id="schedulePanel" class="tab-panel" style="display:none">
+            <div class="page-header">
+                <h1>My Weekly Schedule</h1>
+                <p>Set your availability — toggle days on/off and configure hours</p>
+            </div>
+
+            <div class="schedule-days-grid" id="scheduleDaysGrid">
+                <!-- Populated by JS -->
+            </div>
+
+            <button class="btn-primary" style="max-width:300px" onclick="saveSchedule()">
+                <i class="fa-solid fa-floppy-disk"></i> Save Schedule
+            </button>
+        </div>
+
+        <!-- ── APPOINTMENTS ── -->
+        <div id="appointmentsPanel" class="tab-panel" style="display:none">
+            <div class="page-header">
+                <h1>All Appointments</h1>
+                <p>View and manage your upcoming and past appointments</p>
+            </div>
+
+            <!-- Filter Bar -->
+            <div class="filter-bar">
+                <select id="apptStatusFilter" onchange="renderAppointments()">
+                    <option value="">All Statuses</option>
+                    <option value="booked">Booked</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <input type="date" id="apptDateFilter" onchange="renderAppointments()" />
+            </div>
+
+            <div id="apptListContainer"></div>
+        </div>
+
+        <!-- ── PROFILE ── -->
+        <div id="profilePanel" class="tab-panel" style="display:none">
+            <div class="page-header">
+                <h1>My Profile</h1>
+                <p>Update your doctor profile visible to patients</p>
+            </div>
+
+            <div style="background:var(--card);border:1.5px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:600px">
+                <div id="profileAlert"></div>
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" id="p_name" placeholder="Dr. Your Name" />
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Specialization</label>
+                        <select id="p_spec">
+                            <option value="General Physician">General Physician</option>
+                            <option value="Cardiologist">Cardiologist</option>
+                            <option value="Dermatologist">Dermatologist</option>
+                            <option value="Neurologist">Neurologist</option>
+                            <option value="Orthopedist">Orthopedist</option>
+                            <option value="Pediatrician">Pediatrician</option>
+                            <option value="Gynecologist">Gynecologist</option>
+                            <option value="Psychiatrist">Psychiatrist</option>
+                            <option value="ENT Specialist">ENT Specialist</option>
+                            <option value="Oncologist">Oncologist</option>
+                            <option value="Ophthalmologist">Ophthalmologist</option>
+                            <option value="Dentist">Dentist</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Experience (years)</label>
+                        <input type="number" id="p_exp" min="0" max="50" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Consultation Fee (₹)</label>
+                        <input type="number" id="p_fee" min="0" />
+                    </div>
+                    <div class="form-group">
+                        <label>Avatar</label>
+                        <select id="p_avatar">
+                            <option value="👨‍⚕️">👨‍⚕️ Male Doctor</option>
+                            <option value="👩‍⚕️">👩‍⚕️ Female Doctor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Bio / About</label>
+                    <textarea id="p_bio" rows="3" placeholder="Brief description about yourself…"></textarea>
+                </div>
+                <button class="btn-primary" style="max-width:220px" onclick="saveProfile()">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Profile
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Scripts -->
+<script src="js/storage.js"></script>
+<script src="js/doctor-portal.js"></script>
+</body>
+</html>
