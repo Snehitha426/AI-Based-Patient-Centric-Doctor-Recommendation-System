@@ -442,7 +442,7 @@ This project is licensed under the **ISC License**.
 
 ## 👩‍💻 Author
 
-**Snehitha** — [GitHub Profile](https://github.com/Snehitha426)
+**Snehitha** — [GitHub Profile](https://github.com/Snehitha426) 
 **Gandla Varshini** - [GitHub Profile](https://github.com/GandlaVarshini)
 **Shayestha**
 **Ram**
