@@ -444,8 +444,7 @@ This project is licensed under the **ISC License**.
 
 - **Snehitha** — [GitHub Profile](https://github.com/Snehitha426) 
 - **Gandla Varshini** - [GitHub Profile](https://github.com/GandlaVarshini)
-- **Shayestha**
-- **Ram**
+- **Shayestha** - [GitHub Profile](https://github.com/ShayestaParvez005)
 
 ---
 
