@@ -440,13 +440,6 @@ This project is licensed under the **ISC License**.
 
 ---
 
-## 👩‍💻 Author
-
-- **Snehitha** — [GitHub Profile](https://github.com/Snehitha426) 
-- **Gandla Varshini** - [GitHub Profile](https://github.com/GandlaVarshini)
-- **Shayestha** - [GitHub Profile](https://github.com/ShayestaParvez005)
-
----
 
 <p align="center">
   Built with ❤️ for better healthcare | Powered by LangChain + Groq AI
